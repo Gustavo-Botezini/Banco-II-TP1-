@@ -8,7 +8,7 @@ $env:PGHOST = "localhost"
 $env:PGPORT = "5432" # <- Porta padrão do postgres, caso precise é só modificar
 $env:PGDATABASE = "TB1" # <- Nome do data base que estão as tabelas
 $env:PGUSER = "postgres" # <- Nome do usuário
-$env:PGPASSWORD = $senhaTextoqui
+$env:PGPASSWORD = $senhaTexto
 
 # Realiza a busca cronólogica
 $comando = @"
@@ -48,4 +48,8 @@ foreach ($linha in $log){
 }
 
 #Limpa e fecha a Porta
-Remove-Item: env:PGHOST, env:PGPORT, env:PGDATABASE, env:PGUSER, env:PGSENHA
+Remove-Item Env:PGHOST
+Remove-Item Env:PGPORT
+Remove-Item Env:PGDATABASE
+Remove-Item Env:PGUSER
+Remove-Item Env:PGPASSWORD
