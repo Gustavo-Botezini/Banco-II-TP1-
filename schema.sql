@@ -8,16 +8,15 @@ CREATE UNLOGGED TABLE clientes_em_memoria (
 
 
 CREATE TABLE logs_operacao (
-    log_id SERIAL,
+    log_id SERIAL PRIMARY KEY,
     operation_id INTEGER NOT NULL,
     nome TEXT NOT NULL,
     saldo NUMERIC NOT NULL,
-	  acao VARCHAR(15) NOT NULL,
+	acao VARCHAR(15) NOT NULL,
     consulta TEXT, -- a consulta toda
-	  data_base TEXT ,
-	  user_name TEXT DEFAULT current_user,
-    log_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT pk_log_id PRIMARY KEY(log_id)
+	data_base TEXT ,
+	user_name TEXT DEFAULT current_user,
+    log_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE OR REPLACE FUNCTION logs() 
@@ -43,10 +42,10 @@ AS $$
 		INSERT INTO logs_operacao (operation_id, nome, saldo, acao, consulta, data_base)
 		VALUES(NEW.id, NEW.nome, NEW.saldo, 'UPDATE', consulta_atual,banco);
 		RETURN NEW;
-	-- Caso diferente para treino
 	ELSIF (TG_OP = 'DELETE') THEN
-    	RAISE EXCEPTION 'Operação DELETE não permitida na tabela operations';
-    	RETURN NULL;
+    	INSERT INTO logs_operacao (operation_id, nome, saldo, acao, consulta, data_base)
+		VALUES(OLD.id, OLD.nome, OLD.saldo, 'DELETE', consulta_atual,banco);
+		RETURN NEW;
 	END IF;
 	END;
 $$ LANGUAGE plpgsql;
