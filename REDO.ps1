@@ -6,8 +6,8 @@ $senhaTexto = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.Intero
 #Configurações :)
 $env:PGHOST = "localhost"
 $env:PGPORT = "5432" # <- Porta padrão do postgres, caso precise é só modificar
-$env:PGDATABASE = "TB1" # <- Nome do data base que estão as tabelas
-$env:PGUSER = "postgres" # <- Nome do usuário
+$env:PGDATABASE = "DATABASE" # <- Nome do data base que estão as tabelas
+$env:PGUSER = "USUÁRIO" # <- Nome do usuário
 $env:PGPASSWORD = $senhaTexto
 
 # Realiza a busca cronólogica
