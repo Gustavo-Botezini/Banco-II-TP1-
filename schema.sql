@@ -9,13 +9,13 @@ CREATE UNLOGGED TABLE clientes_em_memoria (
 
 CREATE TABLE logs_operacao (
     log_id SERIAL PRIMARY KEY,
-    operation_id INTEGER NOT NULL,
-    nome TEXT NOT NULL,
-    saldo NUMERIC NOT NULL,
-	acao VARCHAR(15) NOT NULL,
+    operation_id INTEGER,
+    nome TEXT,
+    saldo NUMERIC,
+    acao VARCHAR(15) NOT NULL,
     consulta TEXT, -- a consulta toda
-	data_base TEXT ,
-	user_name TEXT DEFAULT current_user,
+    data_base TEXT ,
+    user_name TEXT DEFAULT current_user,
     log_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
