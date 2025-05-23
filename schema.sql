@@ -52,3 +52,35 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE TRIGGER trg_logs BEFORE INSERT OR UPDATE OR DELETE ON clientes_em_memoria
 FOR EACH ROW EXECUTE FUNCTION logs();
+
+--Função para adicionar o BEGIN na tabela logs_operacao
+CREATE OR REPLACE FUNCTION func_begin()
+RETURNS VOID 
+AS $$
+DECLARE
+    banco TEXT := current_database();
+BEGIN
+    INSERT INTO logs_operacao (
+        operation_id, nome, saldo, acao, consulta, data_base, user_name
+    )
+    VALUES (
+        NULL, NULL, NULL, 'BEGIN', NULL, banco, current_user
+    );
+END;
+$$LANGUAGE plpgsql;
+
+--Função para adicionar o END na tabela logs_operacao
+CREATE OR REPLACE FUNCTION func_end()
+RETURNS VOID 
+AS $$
+DECLARE
+    banco TEXT := current_database();
+BEGIN
+    INSERT INTO logs_operacao (
+        operation_id, nome, saldo, acao, consulta, data_base, user_name
+    )
+    VALUES (
+        NULL, NULL, NULL, 'END', NULL, banco, current_user
+    );
+END;
+$$LANGUAGE plpgsql;
