@@ -5,8 +5,8 @@ $senhaTexto = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.Intero
 # Configurações :)
 $env:PGHOST = "localhost"
 $env:PGPORT = "5432"
-$env:PGDATABASE = "TB1"
-$env:PGUSER = "postgres"
+$env:PGDATABASE = "DATABASE" #<- Colocar a base de dados
+$env:PGUSER = "USER" #]<- Colocar usuário
 $env:PGPASSWORD = $senhaTexto
 
 
