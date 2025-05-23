@@ -2,19 +2,20 @@
 $senha = Read-Host -AsSecureString "Digite a senha do usuario postgreSQL"
 $senhaTexto = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($senha))
 
-
-#Configurações :)
+# Configurações :)
 $env:PGHOST = "localhost"
-$env:PGPORT = "5432" # <- Porta padrão do postgres, caso precise é só modificar
-$env:PGDATABASE = "DATABASE" # <- Nome do data base que estão as tabelas
-$env:PGUSER = "USUÁRIO" # <- Nome do usuário
+$env:PGPORT = "5432"
+$env:PGDATABASE = "TB1"
+$env:PGUSER = "postgres"
 $env:PGPASSWORD = $senhaTexto
 
-# Realiza a busca cronólogica
+
+
+# Busca completa e cronológica
 $comando = @"
-	SELECT l.acao, l.operation_id, l.nome, l.saldo 
+	SELECT l.log_id, l.acao, l.operation_id, l.nome, l.saldo 
 	FROM logs_operacao l 
-	ORDER BY l.log_timestamp 
+	ORDER BY l.log_id
 "@
 
 $log = psql -t -A -F "|" -c $comando
@@ -25,29 +26,76 @@ $log = psql -t -A -F "|" -c $comando
 -c -> Comando a ser executado
 #>
 
-foreach ($linha in $log){
+# Variáveis de controle
+$executarBloco = $false
+$bloco = @()
+$blocosValidos = @()
+
+foreach ($linha in $log) {
 	$dados = $linha -split '\|'
-	$acao = $dados[0]
-	$id = $dados[1]
-	$nome = $dados[2]
-	$saldo = $dados[3]
-	
-	if($acao -eq 'INSERT'){
-		$comando = "INSERT INTO clientes_em_memoria(id, nome, saldo) VALUES ($id, '$nome', $saldo) ON CONFLICT(id) DO NOTHING;"
+	$acao = $dados[1]
+	$id = $dados[2]
+	$nome = $dados[3]
+	$saldo = $dados[4]
+
+	if ($acao -eq "BEGIN") { #Existe um BEGIN
+		# Começa um novo bloco
+		$bloco = @() 
+		$executarBloco = $true
 	}
-	elseif($acao -eq 'UPDATE'){
-		$comando = "UPDATE clientes_em_memoria SET nome = '$nome', saldo = $saldo WHERE id = $id;"
+	elseif ($acao -eq "END") {
+		# Fecha o bloco e armazena para execução
+		if ($executarBloco -and $bloco.Count -gt 0) {
+			$blocosValidos += ,$bloco
+		}
+		elseif (-not $executarBloco) {
+		Write-Host "Encontrado END sem BEGIN. Ignorando bloco."
 	}
-	elseif($acao -eq 'DELETE'){
-		$comando = "DELETE FROM clientes_em_memoria WHERE id = $id;"
+		$executarBloco = $false
 	}
-	
-	#executado
-	Write-Host "executado: $comando"
-	psql -c $comando
+	elseif ($executarBloco) {
+		# Adiciona ação ao bloco atual
+		$bloco += ,@{
+			acao = $acao
+			id = $id
+			nome = $nome
+			saldo = $saldo
+		}
+		Write-Host " Adicionando $bloco.Length linhas"
+	}
+}
+# Verifica se há bloco aberto não encerrado
+if ($executarBloco -and $bloco.Count -gt 0) {
+    Write-Host "Bloco com BEGIN no log_id $($bloco[0].log_id) ignorado (sem END)."
 }
 
-#Limpa e fecha a Porta
+# Executa os blocos válidos
+foreach ($bloco in $blocosValidos) {
+	foreach ($registro in $bloco) {
+		$acao = $registro["acao"]
+		$id = $registro["id"]
+		$nome = $registro["nome"]
+		$saldo = $registro["saldo"]
+
+		if ($acao -eq "INSERT") {
+			$comando = "INSERT INTO clientes_em_memoria(id, nome, saldo) VALUES ($id, '$nome', $saldo) ON CONFLICT(id) DO NOTHING;"
+		}
+		elseif ($acao -eq "UPDATE") {
+			$comando = "UPDATE clientes_em_memoria SET nome = '$nome', saldo = $saldo WHERE id = $id;"
+		}
+		elseif ($acao -eq "DELETE") {
+			$comando = "DELETE FROM clientes_em_memoria WHERE id = $id;"
+		}
+		else {
+			continue
+		}
+
+		Write-Host "executado: $comando"
+		psql -c $comando
+	}
+}
+
+# Limpa variáveis de ambiente
 Remove-Item Env:PGHOST
 Remove-Item Env:PGPORT
 Remove-Item Env:PGDATABASE
