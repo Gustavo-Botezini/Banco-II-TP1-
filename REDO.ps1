@@ -1,12 +1,11 @@
 # Solicita a senha do usuário uma única vez
 $senha = Read-Host -AsSecureString "Digite a senha do usuario postgreSQL"
 $senhaTexto = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($senha))
-
 # Configurações :)
 $env:PGHOST = "localhost"
 $env:PGPORT = "5432"
-$env:PGDATABASE = "DATABASE" #<- Colocar a base de dados
-$env:PGUSER = "USER" #]<- Colocar usuário
+$env:PGDATABASE = "DATABASE"
+$env:PGUSER = "USUÁRIO"
 $env:PGPASSWORD = $senhaTexto
 
 
@@ -49,7 +48,7 @@ foreach ($linha in $log) {
 			$blocosValidos += ,$bloco
 		}
 		elseif (-not $executarBloco) {
-		Write-Host "Encontrado END sem BEGIN. Ignorando bloco."
+		Write-Host "⚠️  Encontrado END sem BEGIN. Ignorando bloco."
 	}
 		$executarBloco = $false
 	}
@@ -64,9 +63,12 @@ foreach ($linha in $log) {
 		Write-Host " Adicionando $bloco.Length linhas"
 	}
 }
-# Verifica se há bloco aberto não encerrado
+# Verifica se há bloco aberto não encerrado e mostra todos os dados
 if ($executarBloco -and $bloco.Count -gt 0) {
-    Write-Host "Bloco com BEGIN no log_id $($bloco[0].log_id) ignorado (sem END)."
+	Write-Host "Bloco com BEGIN no log_id $($bloco[0].log_id) ignorado (sem END)."
+	foreach ($registro in $bloco) {
+		Write-Host "Registro aberto: $($registro.acao) com ID $($registro.id), Nome: $($registro.nome), Saldo: $($registro.saldo)"
+		}
 }
 
 # Executa os blocos válidos
