@@ -44,7 +44,7 @@ Simular o mecanismo de **REDO** do **PostgreSQL**, registrando operações de tr
 ## ▶️ Como Executar
 
 1. Crie as tabelas, funções e trigger com o conteúdo de `schema.sql`;
-2. Execute as funções `func_begin()` e `func_end()` nos blocos de comandos;
+2. Execute as funções `func_begin()` `comandos INSERT, UPDATE, DELETE` `func_end()` nos blocos de comandos;
 3. Após simular a falha do banco, rode o script `REDO.ps1` para recuperar as transações.
 
 ---
