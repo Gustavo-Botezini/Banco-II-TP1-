@@ -1,4 +1,4 @@
-# 🗄️ Banco-II-TP1
+# 🗄️ BancoII TP1
 
 ### 👨‍💻 Alunos:
 - @Gustavo-Botezini — `2311100062`  
