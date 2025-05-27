@@ -53,6 +53,8 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE TRIGGER trg_logs BEFORE INSERT OR UPDATE OR DELETE ON clientes_em_memoria
 FOR EACH ROW EXECUTE FUNCTION logs();
 
+-- LEONARDO, ⬇️
+
 --Função para adicionar o BEGIN na tabela logs_operacao
 CREATE OR REPLACE FUNCTION func_begin()
 RETURNS VOID 
