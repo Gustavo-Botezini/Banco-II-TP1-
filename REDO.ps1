@@ -30,6 +30,8 @@ $executarBloco = $false
 $bloco = @()
 $blocosValidos = @()
 
+
+<# LEONARDO
 foreach ($linha in $log) {
 	$dados = $linha -split '\|'
 	$acao = $dados[1]
@@ -63,6 +65,8 @@ foreach ($linha in $log) {
 		Write-Host " Adicionando $bloco.Length linhas"
 	}
 }
+
+
 # Verifica se há bloco aberto não encerrado e mostra todos os dados
 if ($executarBloco -and $bloco.Count -gt 0) {
 	Write-Host "Bloco com BEGIN no log_id $($bloco[0].log_id) ignorado (sem END)."
@@ -70,6 +74,7 @@ if ($executarBloco -and $bloco.Count -gt 0) {
 		Write-Host "Registro aberto: $($registro.acao) com ID $($registro.id), Nome: $($registro.nome), Saldo: $($registro.saldo)"
 		}
 }
+#> #LEONARDO
 
 # Executa os blocos válidos
 foreach ($bloco in $blocosValidos) {
